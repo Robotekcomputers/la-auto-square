@@ -637,7 +637,7 @@ let currentFilter='all';
 
 function fmtPrice(n){return '$'+Number(n).toLocaleString();}
 
-function renderGrid(){
+window.renderGrid = function renderGrid(){
   const grid=document.getElementById('carsGrid');
   if(!grid) return;
   if(!cars || cars.length === 0){
@@ -670,7 +670,7 @@ function renderGrid(){
   setTimeout(()=>document.querySelectorAll('.car-card').forEach(el=>el.style.transition='transform .3s,box-shadow .3s'),50);
 }
 
-function renderAdminList(){
+window.renderAdminList = function renderAdminList(){
   document.getElementById('apCarList').innerHTML=cars.map(c=>`
     <div class="car-row">
       ${(()=>{const t=Array.isArray(c.imgs)&&c.imgs[0]?c.imgs[0]:c.img;return t?`<img class="car-row-thumb" src="${t}" alt="">`:'<div class="car-row-thumb" style="display:flex;align-items:center;justify-content:center;font-size:22px">🚗</div>';})()}
