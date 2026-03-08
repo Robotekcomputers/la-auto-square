@@ -519,6 +519,86 @@ footer{background:#080f18;padding:60px 40px 28px}
   </div>
 </div>
 
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApiC3mxrvKmjdrxx-cQJqbzAd9bFNIgc0",
+    authDomain: "la-auto-square.firebaseapp.com",
+    projectId: "la-auto-square",
+    storageBucket: "la-auto-square.firebasestorage.app",
+    messagingSenderId: "1047258144737",
+    appId: "1:1047258144737:web:708c370aba39c5ae6f7ca0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose DB functions globally so main script can use them
+  window.fbDb = db;
+  window.fbCollection = collection;
+  window.fbDoc = doc;
+  window.fbSetDoc = setDoc;
+  window.fbGetDocs = getDocs;
+  window.fbDeleteDoc = deleteDoc;
+  window.fbOnSnapshot = onSnapshot;
+
+  // Listen for real-time inventory updates
+  window.startInventorySync = function() {
+    const carsCol = collection(db, 'inventory');
+    onSnapshot(carsCol, (snapshot) => {
+      if(snapshot.empty) return;
+      const loaded = [];
+      snapshot.forEach(d => loaded.push(d.data()));
+      loaded.sort((a,b) => a.order - b.order || a.id - b.id);
+      window.cars = loaded;
+      window.nextId = loaded.length ? Math.max(...loaded.map(c=>c.id)) + 1 : 1;
+      if(window.renderGrid) window.renderGrid();
+      if(window.renderAdminList) window.renderAdminList();
+      if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
+      console.log('🔄 Inventory synced from Firebase:', loaded.length, 'vehicles');
+    });
+  };
+
+  // Save single car to Firebase
+  window.fbSaveCar = async function(car) {
+    try {
+      await setDoc(doc(db, 'inventory', String(car.id)), car);
+      console.log('✅ Car saved to Firebase:', car.id);
+    } catch(e) {
+      console.error('❌ Firebase save error:', e);
+    }
+  };
+
+  // Delete car from Firebase
+  window.fbDeleteCar = async function(id) {
+    try {
+      await deleteDoc(doc(db, 'inventory', String(id)));
+      console.log('✅ Car deleted from Firebase:', id);
+    } catch(e) {
+      console.error('❌ Firebase delete error:', e);
+    }
+  };
+
+  // Migrate localStorage cars to Firebase (one time)
+  window.fbMigrateLocalStorage = async function(cars) {
+    console.log('📦 Migrating', cars.length, 'cars to Firebase...');
+    for(const car of cars) {
+      await setDoc(doc(db, 'inventory', String(car.id)), {...car, order: car.id});
+    }
+    console.log('✅ Migration complete');
+  };
+
+  // Start sync after page loads
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if(window.startInventorySync) window.startInventorySync();
+    }, 500);
+  });
+</script>
+
 <script>
 const PWD_HASH = "e37e5983759a3eb1067685603e6fe0d5b7cb39ac75a69f798a0aad84f023347d";
 
@@ -711,6 +791,9 @@ function saveCar(){
     showToast('✅ Vehicle added!'); clearForm();
   }
   saveCarsToStorage(); renderGrid(); renderAdminList(); populateFinVehicleSelect();
+  // Sync to Firebase
+  const savedCar = editId ? cars.find(c=>c.id==editId) : cars[cars.length-1];
+  if(savedCar && window.fbSaveCar) window.fbSaveCar({...savedCar, order: savedCar.id});
 }
 
 function editCar(id){
@@ -763,7 +846,9 @@ function resetInventory(){
 function deleteCar(id){
   if(!confirm('Delete this vehicle? / ¿Eliminar este vehículo?'))return;
   cars=cars.filter(c=>c.id!==id);
-  saveCarsToStorage(); renderGrid(); renderAdminList(); populateFinVehicleSelect(); populateFinVehicleSelect(); showToast('🗑 Vehicle removed');
+  saveCarsToStorage(); renderGrid(); renderAdminList(); populateFinVehicleSelect();
+  showToast('🗑 Vehicle removed');
+  if(window.fbDeleteCar) window.fbDeleteCar(id);
 }
 
 function showToast(msg){
@@ -919,6 +1004,18 @@ document.addEventListener('keydown',function(e){
 renderGrid();
 renderAdminList();
 populateFinVehicleSelect();
+
+// Migrate localStorage to Firebase if needed
+setTimeout(() => {
+  if(window.fbMigrateLocalStorage && cars.length > 0) {
+    // Check if Firebase already has data by waiting for sync
+    window._migrationDone = window._migrationDone || false;
+    if(!window._migrationDone && !window._firebaseSynced) {
+      window._migrationDone = true;
+      window.fbMigrateLocalStorage(cars);
+    }
+  }
+}, 2000);
 </script>
 
 </body>
