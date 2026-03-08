@@ -549,15 +549,18 @@ footer{background:#080f18;padding:60px 40px 28px}
   window.startInventorySync = function() {
     const carsCol = collection(db, 'inventory');
     onSnapshot(carsCol, (snapshot) => {
-      if(snapshot.empty) return;
       const loaded = [];
       snapshot.forEach(d => loaded.push(d.data()));
-      loaded.sort((a,b) => a.order - b.order || a.id - b.id);
+      loaded.sort((a,b) => (a.order||a.id) - (b.order||b.id));
       window.cars = loaded;
       window.nextId = loaded.length ? Math.max(...loaded.map(c=>c.id)) + 1 : 1;
-      if(window.renderGrid) window.renderGrid();
-      if(window.renderAdminList) window.renderAdminList();
-      if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
+      window._firebaseSynced = true;
+      // Force re-render
+      requestAnimationFrame(() => {
+        if(window.renderGrid) window.renderGrid();
+        if(window.renderAdminList) window.renderAdminList();
+        if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
+      });
       console.log('🔄 Inventory synced from Firebase:', loaded.length, 'vehicles');
     });
   };
@@ -591,12 +594,14 @@ footer{background:#080f18;padding:60px 40px 28px}
     console.log('✅ Migration complete');
   };
 
-  // Start sync after page loads
-  window.addEventListener('load', () => {
-    setTimeout(() => {
+  // Start sync immediately when Firebase module loads
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
       if(window.startInventorySync) window.startInventorySync();
-    }, 500);
-  });
+    });
+  } else {
+    if(window.startInventorySync) window.startInventorySync();
+  }
 </script>
 
 <script>
@@ -1024,17 +1029,12 @@ renderGrid();
 renderAdminList();
 populateFinVehicleSelect();
 
-// Migrate localStorage to Firebase if needed
+// Migrate localStorage to Firebase only if Firebase is empty after 3 seconds
 setTimeout(() => {
-  if(window.fbMigrateLocalStorage && cars.length > 0) {
-    // Check if Firebase already has data by waiting for sync
-    window._migrationDone = window._migrationDone || false;
-    if(!window._migrationDone && !window._firebaseSynced) {
-      window._migrationDone = true;
-      window.fbMigrateLocalStorage(cars);
-    }
+  if(!window._firebaseSynced && window.fbMigrateLocalStorage && cars.length > 0) {
+    window.fbMigrateLocalStorage(cars);
   }
-}, 2000);
+}, 3000);
 </script>
 
 </body>
