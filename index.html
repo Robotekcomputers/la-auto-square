@@ -232,6 +232,8 @@ footer{background:#080f18;padding:60px 40px 28px}
   .fr{grid-template-columns:1fr}#adminPanel{width:100%;right:-100%}
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -520,10 +522,8 @@ footer{background:#080f18;padding:60px 40px 28px}
 </div>
 
 <!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+<!-- Firebase moved to head -->
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyApiC3mxrvKmjdrxx-cQJqbzAd9bFNIgc0",
     authDomain: "la-auto-square.firebaseapp.com",
@@ -533,80 +533,57 @@ footer{background:#080f18;padding:60px 40px 28px}
     appId: "1:1047258144737:web:708c370aba39c5ae6f7ca0"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  // Expose DB functions globally so main script can use them
-  window.fbDb = db;
-  window.fbCollection = collection;
-  window.fbDoc = doc;
-  window.fbSetDoc = setDoc;
-  window.fbGetDocs = getDocs;
-  window.fbDeleteDoc = deleteDoc;
-  window.fbOnSnapshot = onSnapshot;
-
-  // Listen for real-time inventory updates
-  window.startInventorySync = function() {
-    const carsCol = collection(db, 'inventory');
-    onSnapshot(carsCol, (snapshot) => {
-      const loaded = [];
-      snapshot.forEach(d => loaded.push(d.data()));
-      loaded.sort((a,b) => (a.order||a.id) - (b.order||b.id));
-      window.cars = loaded;
-      window.nextId = loaded.length ? Math.max(...loaded.map(c=>c.id)) + 1 : 1;
-      window._firebaseSynced = true;
-      console.log('🔄 Inventory synced from Firebase:', loaded.length, 'vehicles');
-      // Keep trying to render until main script is ready
-      function tryRender(attempts) {
-        if(window.renderGrid) {
-          window.renderGrid();
-          if(window.renderAdminList) window.renderAdminList();
-          if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
-          console.log('✅ Grid rendered with', loaded.length, 'cars');
-        } else if(attempts > 0) {
-          setTimeout(() => tryRender(attempts - 1), 200);
-        }
-      }
-      tryRender(20);
-    });
-  };
-
-  // Save single car to Firebase
   window.fbSaveCar = async function(car) {
     try {
-      await setDoc(doc(db, 'inventory', String(car.id)), car);
+      await db.collection('inventory').doc(String(car.id)).set(car);
       console.log('✅ Car saved to Firebase:', car.id);
     } catch(e) {
       console.error('❌ Firebase save error:', e);
     }
   };
 
-  // Delete car from Firebase
   window.fbDeleteCar = async function(id) {
     try {
-      await deleteDoc(doc(db, 'inventory', String(id)));
+      await db.collection('inventory').doc(String(id)).delete();
       console.log('✅ Car deleted from Firebase:', id);
     } catch(e) {
       console.error('❌ Firebase delete error:', e);
     }
   };
 
-  // Migrate localStorage cars to Firebase (one time)
-  window.fbMigrateLocalStorage = async function(cars) {
-    console.log('📦 Migrating', cars.length, 'cars to Firebase...');
-    for(const car of cars) {
-      await setDoc(doc(db, 'inventory', String(car.id)), {...car, order: car.id});
-    }
-    console.log('✅ Migration complete');
+  window.startInventorySync = function() {
+    console.log('🔄 Starting Firebase sync...');
+    db.collection('inventory').onSnapshot(snapshot => {
+      const loaded = [];
+      snapshot.forEach(d => loaded.push(d.data()));
+      loaded.sort((a,b) => (a.order||a.id) - (b.order||b.id));
+      window.cars = loaded;
+      window.nextId = loaded.length ? Math.max(...loaded.map(c=>c.id)) + 1 : 100;
+      window._firebaseSynced = true;
+      console.log('✅ Firebase synced:', loaded.length, 'cars');
+      function tryRender(n) {
+        if(window.renderGrid) {
+          window.renderGrid();
+          if(window.renderAdminList) window.renderAdminList();
+          if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
+        } else if(n > 0) {
+          setTimeout(() => tryRender(n-1), 300);
+        }
+      }
+      tryRender(20);
+    }, err => {
+      console.error('❌ Firebase error:', err);
+    });
   };
 
-  // Start sync immediately when Firebase module loads
+  // Start sync as soon as DOM is ready
   if(document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if(window.startInventorySync) window.startInventorySync();
-    });
+    document.addEventListener('DOMContentLoaded', window.startInventorySync);
   } else {
-    if(window.startInventorySync) window.startInventorySync();
+    window.startInventorySync();
   }
 </script>
 
