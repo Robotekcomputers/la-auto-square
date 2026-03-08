@@ -712,33 +712,52 @@ function filterCars(type,btn){
   renderGrid();
 }
 
-function previewImages(e){
+async function previewImages(e){
   const files = Array.from(e.target.files);
   if(!files.length) return;
 
-  // Keep existing images, add new ones up to 8 total
   let existing = [];
   try { existing = JSON.parse(document.getElementById('apImgData').value || '[]'); } catch(x){ existing=[]; }
 
   const remaining = 8 - existing.length;
   const toAdd = files.slice(0, remaining);
-  if(!toAdd.length){ showToast('⚠ Maximum 8 photos reached'); return; }
+  if(!toAdd.length){ showToast('⚠ Maximum 8 photos / Máximo 8 fotos'); return; }
 
-  let loaded = 0;
-  toAdd.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      existing.push(ev.target.result);
-      loaded++;
-      if(loaded === toAdd.length){
-        document.getElementById('apImgData').value = JSON.stringify(existing);
-        renderImgPreviews(existing);
-        showToast('📷 '+existing.length+' photo'+(existing.length>1?'s':'')+' loaded');
+  showToast('⏳ Uploading '+toAdd.length+' photo'+(toAdd.length>1?'s':'')+'...');
+
+  const CLOUD = 'dnnlvpfjn';
+  const PRESET = 'la-auto-square';
+  let uploaded = 0;
+
+  for(const file of toAdd){
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', PRESET);
+      formData.append('folder', 'la-auto-square');
+
+      const res = await fetch('https://api.cloudinary.com/v1_1/'+CLOUD+'/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if(data.secure_url){
+        existing.push(data.secure_url);
+        uploaded++;
+        showToast('📷 '+uploaded+' of '+toAdd.length+' uploaded...');
+      } else {
+        showToast('⚠ Error uploading photo');
+        console.error('Cloudinary error:', data);
       }
-    };
-    reader.readAsDataURL(file);
-  });
-  // Reset file input so same files can be re-selected if needed
+    } catch(err) {
+      console.error('Upload error:', err);
+      showToast('⚠ Upload failed — check connection');
+    }
+  }
+
+  document.getElementById('apImgData').value = JSON.stringify(existing);
+  renderImgPreviews(existing);
+  showToast('✅ '+existing.length+' photo'+(existing.length>1?'s':'')+' ready!');
   e.target.value = '';
 }
 
