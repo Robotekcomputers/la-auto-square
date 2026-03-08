@@ -421,7 +421,7 @@ footer{background:#080f18;padding:60px 40px 28px}
   </div>
 </footer>
 
-<button id="adminToggle" onclick="showLogin()">⚙ Admin</button>
+<button id="adminToggle" onclick="if(window.showLogin)window.showLogin();else setTimeout(()=>window.showLogin&&window.showLogin(),500)">⚙ Admin</button>
 <div class="ap-overlay" id="apOverlay" onclick="closeAdmin()"></div>
 
 <!-- LOGIN MODAL -->
@@ -605,7 +605,7 @@ async function sha256(msg){
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-function showLogin(){
+window.showLogin = function showLogin(){
   document.getElementById('loginModal').style.display='flex';
   document.getElementById('loginPwd').value='';
   document.getElementById('loginErr').textContent='';
