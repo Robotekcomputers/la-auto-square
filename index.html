@@ -662,6 +662,11 @@ function fmtPrice(n){return '$'+Number(n).toLocaleString();}
 
 function renderGrid(){
   const grid=document.getElementById('carsGrid');
+  if(!grid) return;
+  if(!cars || cars.length === 0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray)"><div style="font-size:40px;margin-bottom:16px">⏳</div><div style="font-size:16px">Loading inventory...</div></div>';
+    return;
+  }
   const filtered=currentFilter==='all'?cars:cars.filter(c=>c.type===currentFilter);
   grid.innerHTML=filtered.map(c=>{
     const imgs = Array.isArray(c.imgs) ? c.imgs : (c.img ? [c.img] : []);
@@ -1013,9 +1018,11 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape') closeDetails();
 });
 
-renderGrid();
+renderGrid(); // Shows loading spinner initially
 renderAdminList();
 populateFinVehicleSelect();
+// Clear any stale localStorage
+try { localStorage.removeItem('las_inventory'); } catch(e){}
 
 // Firebase handles all data - no migration needed
 </script>
