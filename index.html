@@ -319,7 +319,7 @@ footer{background:#080f18;padding:60px 40px 28px}
           <div class="fg"><label><span class="en">First Name</span><span class="es" style="display:none">Nombre</span></label><input type="text" placeholder="John"></div>
           <div class="fg"><label><span class="en">Last Name</span><span class="es" style="display:none">Apellido</span></label><input type="text" placeholder="Doe"></div>
         </div>
-        <div class="fg"><label><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></label><input type="tel" placeholder="(818) 000-0000"></div>
+        <div class="fg"><label><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></label><input type="tel" placeholder="(661) 227-0989"></div>
         <div class="fg"><label><span class="en">Monthly Income</span><span class="es" style="display:none">Ingreso Mensual</span></label><select><option>$1,000–$2,000</option><option>$2,000–$3,500</option><option>$3,500–$5,000</option><option>$5,000+</option></select></div>
         <div class="fg"><label><span class="en">Credit Score</span><span class="es" style="display:none">Crédito Aprox.</span></label><select><option>I don't know / No sé</option><option>Below 580</option><option>580–669</option><option>670–739</option><option>740+</option></select></div>
         <button class="btn-primary" style="width:100%;margin-top:8px"><span class="en">Submit Application</span><span class="es" style="display:none">Enviar Solicitud</span></button>
@@ -363,7 +363,7 @@ footer{background:#080f18;padding:60px 40px 28px}
     <div class="contact-grid">
       <div class="c-info">
         <div class="c-item"><div class="c-icon">📍</div><div><h4><span class="en">Address</span><span class="es" style="display:none">Dirección</span></h4><p>14401 Gilmore St #204<br>Van Nuys, CA 91401</p></div></div>
-        <div class="c-item"><div class="c-icon">📞</div><div><h4><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></h4><p>(818) 000-0000</p></div></div>
+        <div class="c-item"><div class="c-icon">📞</div><div><h4><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></h4><p>(661) 227-0989</p></div></div>
         <div class="c-item"><div class="c-icon">🕐</div><div><h4><span class="en">Hours</span><span class="es" style="display:none">Horario</span></h4><p><span class="en">Mon–Sat: 9AM–7PM | Sun: 10AM–5PM</span><span class="es" style="display:none">Lun–Sáb: 9AM–7PM | Dom: 10AM–5PM</span></p></div></div>
         <div class="c-item"><div class="c-icon">💬</div><div><h4><span class="en">Languages</span><span class="es" style="display:none">Idiomas</span></h4><p><span class="en">English &amp; Spanish spoken here</span><span class="es" style="display:none">Se habla inglés y español</span></p></div></div>
       </div>
@@ -371,7 +371,7 @@ footer{background:#080f18;padding:60px 40px 28px}
         <h3><span class="en">Send Us a Message</span><span class="es" style="display:none">Envíanos un Mensaje</span></h3>
         <div class="fr">
           <div class="fg"><label><span class="en">Name</span><span class="es" style="display:none">Nombre</span></label><input type="text" placeholder="Your name"></div>
-          <div class="fg"><label><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></label><input type="tel" placeholder="(818) 000-0000"></div>
+          <div class="fg"><label><span class="en">Phone</span><span class="es" style="display:none">Teléfono</span></label><input type="tel" placeholder="(661) 227-0989"></div>
         </div>
         <div class="fg"><label>Email</label><input type="email" placeholder="you@email.com"></div>
         <div class="fg"><label><span class="en">I am interested in...</span><span class="es" style="display:none">Me interesa...</span></label><select><option>Buying a vehicle / Comprar</option><option>Financing / Financiamiento</option><option>A specific car / Auto específico</option><option>General question / Pregunta</option></select></div>
@@ -409,7 +409,7 @@ footer{background:#080f18;padding:60px 40px 28px}
         <ul>
           <li><a href="#">14401 Gilmore St #204</a></li>
           <li><a href="#">Van Nuys, CA 91401</a></li>
-          <li><a href="tel:8180000000">(818) 000-0000</a></li>
+          <li><a href="tel:8180000000">(661) 227-0989</a></li>
           <li><a href="/cdn-cgi/l/email-protection#f49d9a929bb498959581809b878581958691da979b99"><span class="__cf_email__" data-cfemail="3950575f56795558584c4d564a484c584b5c175a5654">[email&#160;protected]</span></a></li>
         </ul>
       </div>
@@ -447,7 +447,7 @@ footer{background:#080f18;padding:60px 40px 28px}
   </div>
   <div class="ap-body">
     <div class="ap-section">
-      <div class="ap-section-title" style="display:flex;align-items:center;justify-content:space-between">Current Inventory / Inventario Actual<button class="btn-reset-inv" onclick="resetInventory()">↺ Reset to defaults</button></div>
+      <div class="ap-section-title" style="display:flex;align-items:center;justify-content:space-between">Current Inventory / Inventario Actual<button class="btn-reset-inv" style="background:var(--navy);color:#fff" onclick="closeAdmin()">✕ Close Panel</button></div>
       <div id="apCarList"></div>
     </div>
     <div class="ap-section">
@@ -515,7 +515,17 @@ footer{background:#080f18;padding:60px 40px 28px}
       </div>
       <div class="det-actions">
         <a href="#financing" class="btn-primary" id="detBtnFinance" onclick="closeDetails();applyForFinancing(window._detCurrentCarId)">Apply for Financing</a>
-        <a href="#contact" class="btn-outline-navy" id="detBtnContact" onclick="closeDetails()">Contact Us</a>
+        <button class="btn-outline-navy" id="detBtnContact" onclick="openCarInquiry('specific')">Contact About This Car</button>
+        <button class="btn-outline-navy" style="margin-top:8px;width:100%" onclick="openCarInquiry('general')">Looking for a Different Car?</button>
+      </div>
+      <!-- Car Inquiry Form -->
+      <div id="carInquiryForm" style="display:none;margin-top:16px;padding:16px;background:#f8f8f8;border-radius:8px">
+        <div id="inquiryTitle" style="font-weight:600;margin-bottom:12px;color:var(--navy)"></div>
+        <input id="inquiryName" type="text" placeholder="Your Name / Su Nombre" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box">
+        <input id="inquiryPhone" type="tel" placeholder="Phone / Teléfono" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box">
+        <textarea id="inquiryMsg" placeholder="Message / Mensaje" rows="3" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;resize:none"></textarea>
+        <button onclick="submitCarInquiry()" style="background:var(--gold);color:var(--navy);border:none;padding:10px 20px;border-radius:6px;font-weight:600;cursor:pointer;width:100%">Send / Enviar</button>
+        <button onclick="document.getElementById('carInquiryForm').style.display='none'" style="background:none;border:none;color:#999;margin-top:8px;cursor:pointer;width:100%">Cancel / Cancelar</button>
       </div>
     </div>
   </div>
@@ -982,6 +992,53 @@ function carouselNav(dir){
   const total = window._detCarouselTotal || 1;
   const next = ((window._detCarouselIdx || 0) + dir + total) % total;
   carouselGo(next);
+}
+
+function openCarInquiry(type){
+  const form = document.getElementById('carInquiryForm');
+  const title = document.getElementById('inquiryTitle');
+  if(type === 'specific'){
+    const car = (window.cars||cars).find(c=>c.id==window._detCurrentCarId);
+    const carName = car ? `${car.year} ${car.make} ${car.model}` : 'this vehicle';
+    title.textContent = `📩 Ask about the ${carName}`;
+    form.dataset.type = 'specific';
+  } else {
+    title.textContent = '🔍 Tell us what car you're looking for';
+    document.getElementById('inquiryMsg').placeholder = 'Describe the car you want / Describe el carro que busca';
+    form.dataset.type = 'general';
+  }
+  form.style.display = 'block';
+}
+
+function submitCarInquiry(){
+  const name = document.getElementById('inquiryName').value.trim();
+  const phone = document.getElementById('inquiryPhone').value.trim();
+  const msg = document.getElementById('inquiryMsg').value.trim();
+  const type = document.getElementById('carInquiryForm').dataset.type;
+  
+  if(!name || !phone){ showToast('⚠ Please enter your name and phone'); return; }
+
+  const car = (window.cars||cars).find(c=>c.id==window._detCurrentCarId);
+  const carName = car ? `${car.year} ${car.make} ${car.model} - $${car.price?.toLocaleString()}` : 'N/A';
+  
+  const subject = type === 'specific' ? `Interest in ${carName}` : 'Looking for a specific car';
+  const body = type === 'specific'
+    ? `Customer inquiry about: ${carName}\n\nName: ${name}\nPhone: ${phone}\nMessage: ${msg||'No message'}`
+    : `Customer looking for a car\n\nName: ${name}\nPhone: ${phone}\nDescription: ${msg}`;
+
+  // Send via mailto
+  const mailtoLink = `mailto:laautosquare@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(mailtoLink);
+  
+  document.getElementById('carInquiryForm').style.display = 'none';
+  document.getElementById('inquiryName').value = '';
+  document.getElementById('inquiryPhone').value = '';
+  document.getElementById('inquiryMsg').value = '';
+  showToast('✅ Opening email to send inquiry!');
+}
+
+function closeAdmin(){
+  document.getElementById('apOverlay').style.display='none';
 }
 
 function closeDetails(){
