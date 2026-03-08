@@ -555,13 +555,19 @@ footer{background:#080f18;padding:60px 40px 28px}
       window.cars = loaded;
       window.nextId = loaded.length ? Math.max(...loaded.map(c=>c.id)) + 1 : 1;
       window._firebaseSynced = true;
-      // Force re-render
-      requestAnimationFrame(() => {
-        if(window.renderGrid) window.renderGrid();
-        if(window.renderAdminList) window.renderAdminList();
-        if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
-      });
       console.log('🔄 Inventory synced from Firebase:', loaded.length, 'vehicles');
+      // Keep trying to render until main script is ready
+      function tryRender(attempts) {
+        if(window.renderGrid) {
+          window.renderGrid();
+          if(window.renderAdminList) window.renderAdminList();
+          if(window.populateFinVehicleSelect) window.populateFinVehicleSelect();
+          console.log('✅ Grid rendered with', loaded.length, 'cars');
+        } else if(attempts > 0) {
+          setTimeout(() => tryRender(attempts - 1), 200);
+        }
+      }
+      tryRender(20);
     });
   };
 
